@@ -14,12 +14,26 @@ from src.utils.init_path import init_path
 from pydub import AudioSegment
 from time import perf_counter
 
-import ThreadWithReturnValue
+import threading
+from ThreadWithReturnValue import ThreadWithReturnValue
 
 def mp3_to_wav(mp3_filename,wav_filename,frame_rate):
     mp3_file = AudioSegment.from_file(file=mp3_filename)
     mp3_file.set_frame_rate(frame_rate).export(wav_filename,format="wav")
 
+def createAudio2Coeff(event, sadtalker_paths, device):
+    Audio2Coeff(sadtalker_paths, device)
+    event.set()
+    
+
+
+def createCropAndExtract(event, sadtalker_paths, device):
+    CropAndExtract(sadtalker_paths, device)
+    event.set()
+
+def createAnimateFromCoeff(event, sadtalker_paths, device):
+    AnimateFromCoeff(sadtalker_paths, device)
+    event.set()
 
 
 
@@ -67,17 +81,28 @@ def main(args):
 
     start_3Method = perf_counter()
     
-    audio_to_coeff_thread = ThreadWithReturnValue(target = Audio2Coeff, args = (sadtalker_paths, args.device))
-    preprocess_model_thread = ThreadWithReturnValue(target = CropAndExtract, args = (sadtalker_paths, args.device))
-    animate_from_coeff_thread = ThreadWithReturnValue(target = AnimateFromCoeff, args = (sadtalker_paths, args.device))
+    
+    event_audio_to_coeff = threading.Event()
+    event_preprocess_model = threading.Event()
+    event_animate_from_coeff = threading.Event()
+    
+    audio_to_coeff_thread = ThreadWithReturnValue(target = createAudio2Coeff, args = (event_audio_to_coeff, sadtalker_paths, args.device))
+    preprocess_model_thread = ThreadWithReturnValue(target = createCropAndExtract, args = (event_preprocess_model, sadtalker_paths, args.device))
+    animate_from_coeff_thread = ThreadWithReturnValue(target = createAnimateFromCoeff, args = (event_animate_from_coeff, sadtalker_paths, args.device))
     
     audio_to_coeff_thread.start()
     preprocess_model_thread.start()
     animate_from_coeff_thread.start()
     
-    audio_to_coeff = audio_to_coeff_thread.join() #Audio2Coeff(sadtalker_paths, args.device)
-    preprocess_model = preprocess_model_thread.join() # CropAndExtract(sadtalker_paths, args.device)
-    animate_from_coeff = animate_from_coeff_thread.join() #AnimateFromCoeff(sadtalker_paths, args.device)
+    
+    event_audio_to_coeff.wait()
+    event_preprocess_model.wait()
+    event_animate_from_coeff.wait()
+    
+    
+    audio_to_coeff = Audio2Coeff(sadtalker_paths, args.device)
+    preprocess_model = CropAndExtract(sadtalker_paths, args.device)
+    animate_from_coeff = AnimateFromCoeff(sadtalker_paths, args.device)
     
     if facerender == 'pirender' or args.device == 'mps':
         facerender = 'pirender'
