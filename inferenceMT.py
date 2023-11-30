@@ -14,6 +14,8 @@ from src.utils.init_path import init_path
 from pydub import AudioSegment
 from time import perf_counter
 
+import ThreadWithReturnValue
+
 def mp3_to_wav(mp3_filename,wav_filename,frame_rate):
     mp3_file = AudioSegment.from_file(file=mp3_filename)
     mp3_file.set_frame_rate(frame_rate).export(wav_filename,format="wav")
@@ -65,16 +67,28 @@ def main(args):
 
     start_3Method = perf_counter()
     
-    audio_to_coeff = Audio2Coeff(sadtalker_paths, args.device)
-    preprocess_model = CropAndExtract(sadtalker_paths, args.device)
+    audio_to_coeff_thread = ThreadWithReturnValue(target = Audio2Coeff, args = (sadtalker_paths, args.device))
+    preprocess_model_thread = ThreadWithReturnValue(target = CropAndExtract, args = (sadtalker_paths, args.device))
+    animate_from_coeff_thread = ThreadWithReturnValue(target = AnimateFromCoeff, args = (sadtalker_paths, args.device))
     
-    if facerender == 'facevid2vid' and args.device != 'mps':
-        animate_from_coeff = AnimateFromCoeff(sadtalker_paths, args.device)
-    elif facerender == 'pirender' or args.device == 'mps':
-        animate_from_coeff = AnimateFromCoeff_PIRender(sadtalker_paths, args.device)
+    audio_to_coeff_thread.start()
+    preprocess_model_thread.start()
+    animate_from_coeff_thread.start()
+    
+    audio_to_coeff = audio_to_coeff_thread.join() #Audio2Coeff(sadtalker_paths, args.device)
+    preprocess_model = preprocess_model_thread.join() # CropAndExtract(sadtalker_paths, args.device)
+    animate_from_coeff = animate_from_coeff_thread.join() #AnimateFromCoeff(sadtalker_paths, args.device)
+    
+    if facerender == 'pirender' or args.device == 'mps':
         facerender = 'pirender'
-    else:
-        raise(RuntimeError('Unknown model: {}'.format(facerender)))
+    
+    # if facerender == 'facevid2vid' and args.device != 'mps':
+    #     animate_from_coeff = AnimateFromCoeff(sadtalker_paths, args.device)
+    # elif facerender == 'pirender' or args.device == 'mps':
+    #     animate_from_coeff = AnimateFromCoeff_PIRender(sadtalker_paths, args.device)
+    #     facerender = 'pirender'
+    # else:
+    #     raise(RuntimeError('Unknown model: {}'.format(facerender)))
         
 
     end_3Method = perf_counter()
