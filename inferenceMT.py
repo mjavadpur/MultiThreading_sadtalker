@@ -118,7 +118,7 @@ def main(args):
 
     end_3Method = perf_counter()
     
-    print(f"---- 3Method Exec Time in ususal way is: {end_3Method-start_3Method}")
+    print(f"---- 3Method Exec Time in MT way is: {end_3Method-start_3Method}")
     
     print("save_dir:" + save_dir)
     input_dir = os.path.join(save_dir, 'input')
