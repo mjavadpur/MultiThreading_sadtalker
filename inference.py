@@ -65,16 +65,19 @@ def main(args):
 
     start_3Method = perf_counter()
     
-    audio_to_coeff = Audio2Coeff(sadtalker_paths, args.device)
-    preprocess_model = CropAndExtract(sadtalker_paths, args.device)
+    audio_to_coeff = Audio2Coeff()
+    audio_to_coeff.init(sadtalker_paths, args.device)
     
-    if facerender == 'facevid2vid' and args.device != 'mps':
-        animate_from_coeff = AnimateFromCoeff(sadtalker_paths, args.device)
-    elif facerender == 'pirender' or args.device == 'mps':
-        animate_from_coeff = AnimateFromCoeff_PIRender(sadtalker_paths, args.device)
+    
+    preprocess_model = CropAndExtract()
+    preprocess_model.init(sadtalker_paths, args.device)
+    
+    animate_from_coeff = AnimateFromCoeff()
+    animate_from_coeff.init(sadtalker_paths, args.device)
+    
+    
+    if facerender == 'pirender' or args.device == 'mps':
         facerender = 'pirender'
-    else:
-        raise(RuntimeError('Unknown model: {}'.format(facerender)))
         
 
     end_3Method = perf_counter()

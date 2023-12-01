@@ -32,7 +32,7 @@ except:
 
 class AnimateFromCoeff():
 
-    def __init__(self, sadtalker_path, device):
+    def init(self, AnimateFromCoeffInstance, sadtalker_path, device):
 
         with open(sadtalker_path['facerender_yaml']) as f:
             config = yaml.safe_load(f)
@@ -60,28 +60,28 @@ class AnimateFromCoeff():
 
         if sadtalker_path is not None:
             if 'checkpoint' in sadtalker_path: # use safe tensor
-                self.load_cpk_facevid2vid_safetensor(sadtalker_path['checkpoint'], kp_detector=kp_extractor, generator=generator, he_estimator=None)
+                AnimateFromCoeffInstance.load_cpk_facevid2vid_safetensor(sadtalker_path['checkpoint'], kp_detector=kp_extractor, generator=generator, he_estimator=None)
             else:
-                self.load_cpk_facevid2vid(sadtalker_path['free_view_checkpoint'], kp_detector=kp_extractor, generator=generator, he_estimator=he_estimator)
+                AnimateFromCoeffInstance.load_cpk_facevid2vid(sadtalker_path['free_view_checkpoint'], kp_detector=kp_extractor, generator=generator, he_estimator=he_estimator)
         else:
             raise AttributeError("Checkpoint should be specified for video head pose estimator.")
 
         if  sadtalker_path['mappingnet_checkpoint'] is not None:
-            self.load_cpk_mapping(sadtalker_path['mappingnet_checkpoint'], mapping=mapping)
+            AnimateFromCoeffInstance.load_cpk_mapping(sadtalker_path['mappingnet_checkpoint'], mapping=mapping)
         else:
             raise AttributeError("Checkpoint should be specified for video head pose estimator.") 
 
-        self.kp_extractor = kp_extractor
-        self.generator = generator
-        self.he_estimator = he_estimator
-        self.mapping = mapping
+        AnimateFromCoeffInstance.kp_extractor = kp_extractor
+        AnimateFromCoeffInstance.generator = generator
+        AnimateFromCoeffInstance.he_estimator = he_estimator
+        AnimateFromCoeffInstance.mapping = mapping
 
-        self.kp_extractor.eval()
-        self.generator.eval()
-        self.he_estimator.eval()
-        self.mapping.eval()
+        AnimateFromCoeffInstance.kp_extractor.eval()
+        AnimateFromCoeffInstance.generator.eval()
+        AnimateFromCoeffInstance.he_estimator.eval()
+        AnimateFromCoeffInstance.mapping.eval()
          
-        self.device = device
+        AnimateFromCoeffInstance.device = device
     
     def load_cpk_facevid2vid_safetensor(self, checkpoint_path, generator=None, 
                         kp_detector=None, he_estimator=None,  

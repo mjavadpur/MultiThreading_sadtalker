@@ -81,28 +81,31 @@ def main(args):
 
     start_3Method = perf_counter()
     
+    audio_to_coeff = Audio2Coeff()
+    preprocess_model = CropAndExtract()
+    animate_from_coeff = AnimateFromCoeff()
     
-    event_audio_to_coeff = threading.Event()
-    event_preprocess_model = threading.Event()
-    event_animate_from_coeff = threading.Event()
     
-    audio_to_coeff_thread = ThreadWithReturnValue(target = createAudio2Coeff, args = (event_audio_to_coeff, sadtalker_paths, args.device))
-    preprocess_model_thread = ThreadWithReturnValue(target = createCropAndExtract, args = (event_preprocess_model, sadtalker_paths, args.device))
-    animate_from_coeff_thread = ThreadWithReturnValue(target = createAnimateFromCoeff, args = (event_animate_from_coeff, sadtalker_paths, args.device))
+    audio_to_coeff_thread = ThreadWithReturnValue(target = createAudio2Coeff, args = (audio_to_coeff, sadtalker_paths, args.device))
+    preprocess_model_thread = ThreadWithReturnValue(target = createCropAndExtract, args = (preprocess_model, sadtalker_paths, args.device))
+    animate_from_coeff_thread = ThreadWithReturnValue(target = createAnimateFromCoeff, args = (animate_from_coeff, sadtalker_paths, args.device))
     
     audio_to_coeff_thread.start()
     preprocess_model_thread.start()
     animate_from_coeff_thread.start()
     
     
-    event_audio_to_coeff.wait()
-    event_preprocess_model.wait()
-    event_animate_from_coeff.wait()
+    audio_to_coeff = audio_to_coeff_thread.join()
+    preprocess_model = preprocess_model_thread.join()
+    animate_from_coeff = animate_from_coeff_thread.join()
     
     
-    audio_to_coeff = Audio2Coeff(sadtalker_paths, args.device)
-    preprocess_model = CropAndExtract(sadtalker_paths, args.device)
-    animate_from_coeff = AnimateFromCoeff(sadtalker_paths, args.device)
+    audio_to_coeff = audio_to_coeff.init(sadtalker_paths, args.device)
+    
+    
+    preprocess_model = preprocess_model.init(sadtalker_paths, args.device)
+    
+    animate_from_coeff = animate_from_coeff.init(sadtalker_paths, args.device)
     
     if facerender == 'pirender' or args.device == 'mps':
         facerender = 'pirender'
