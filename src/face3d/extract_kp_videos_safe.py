@@ -15,7 +15,7 @@ from facexlib.alignment import landmark_98_to_68
 from facexlib.detection import init_detection_model
 
 from facexlib.utils import load_file_from_url
-from src.face3d.util.my_awing_arch import FAN
+from facexlib.alignment.awing_arch import FAN
 
 def init_alignment_model(model_name, half=False, device='cuda', model_rootpath=None):
     if model_name == 'awing_fan':
@@ -43,6 +43,10 @@ class KeypointExtractor():
         except:
             root_path = 'gfpgan/weights'
 
+        # self.detector = init_alignment_model('awing_fan',device=device, model_rootpath=root_path)   
+        # self.det_net = init_detection_model('retinaface_resnet50', half=False,device=device, model_rootpath=root_path)
+        
+        
 
         asyncio.run(self.main(root_path, device))
 
@@ -61,6 +65,7 @@ class KeypointExtractor():
         self.det_net = init_detection_model('retinaface_resnet50', half=False,device=device, model_rootpath=root_path)
         
         
+
     def extract_keypoint(self, images, name=None, info=True):
         if isinstance(images, list):
             keypoints = []
