@@ -66,14 +66,14 @@ def main(args):
     start_3Method = perf_counter()
     
     audio_to_coeff = Audio2Coeff()
-    audio_to_coeff.init(sadtalker_paths, args.device)
+    audio_to_coeff.init(audio_to_coeff, sadtalker_paths, args.device)
     
     
     preprocess_model = CropAndExtract()
-    preprocess_model.init(sadtalker_paths, args.device)
+    preprocess_model.init(preprocess_model , sadtalker_paths, args.device)
     
     animate_from_coeff = AnimateFromCoeff()
-    animate_from_coeff.init(sadtalker_paths, args.device)
+    animate_from_coeff.init(animate_from_coeff, sadtalker_paths, args.device)
     
     
     if facerender == 'pirender' or args.device == 'mps':

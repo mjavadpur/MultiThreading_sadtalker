@@ -21,19 +21,16 @@ def mp3_to_wav(mp3_filename,wav_filename,frame_rate):
     mp3_file = AudioSegment.from_file(file=mp3_filename)
     mp3_file.set_frame_rate(frame_rate).export(wav_filename,format="wav")
 
-def createAudio2Coeff(event, sadtalker_paths, device):
-    Audio2Coeff(sadtalker_paths, device)
-    event.set()
+def createAudio2Coeff(instance, sadtalker_paths, device):
+    instance.init(instance, sadtalker_paths, device)
     
 
 
-def createCropAndExtract(event, sadtalker_paths, device):
-    CropAndExtract(sadtalker_paths, device)
-    event.set()
+def createCropAndExtract(instance, sadtalker_paths, device):
+    instance.init(instance, sadtalker_paths, device)
 
-def createAnimateFromCoeff(event, sadtalker_paths, device):
-    AnimateFromCoeff(sadtalker_paths, device)
-    event.set()
+def createAnimateFromCoeff(instance, sadtalker_paths, device):
+    instance.init(instance, sadtalker_paths, device)
 
 
 
@@ -95,17 +92,11 @@ def main(args):
     animate_from_coeff_thread.start()
     
     
-    audio_to_coeff = audio_to_coeff_thread.join()
-    preprocess_model = preprocess_model_thread.join()
-    animate_from_coeff = animate_from_coeff_thread.join()
+    audio_to_coeff_thread.join()
+    preprocess_model_thread.join()
+    animate_from_coeff_thread.join()
     
     
-    audio_to_coeff = audio_to_coeff.init(sadtalker_paths, args.device)
-    
-    
-    preprocess_model = preprocess_model.init(sadtalker_paths, args.device)
-    
-    animate_from_coeff = animate_from_coeff.init(sadtalker_paths, args.device)
     
     if facerender == 'pirender' or args.device == 'mps':
         facerender = 'pirender'
